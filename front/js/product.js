@@ -59,5 +59,5 @@ validationPanier.addEventListener("click",function(ajout){
 })
 
 console.log("tout va bien");
-
+ok
     
