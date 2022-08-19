@@ -28,7 +28,7 @@ function affichageCaractéristiques(value) {
         `<option value="${couleur}">${couleur}</option>`;
 }};
 // création de l'objet choixProduit //
-let choixProduit = {};
+const choixProduit = {};
 // ajout de la clef "_id" à l'objet "choixProduit" //
 choixProduit._id = idProduct;
 //définitions des variables
@@ -42,22 +42,57 @@ choixCouleur.addEventListener("change", function(choix) {
     choixProduit.couleur = couleurProduit;
     console.log(choixProduit)
 });
-// création d'une fonction d'écoute pour récupérer la valueur de la quantité choisie
+// création d'une fonction d'écoute pour récupérer la valueur de la quantité choisie(on utilise ici "parseInt" pour changer la valeur string de quantité en number)
 choixQuantité.addEventListener('change', function(choix) {
-    quantitéProduit = choix.target.value;
+    quantitéProduit = parseInt(choix.target.value);
     choixProduit.quantité = quantitéProduit;
     console.log(choixProduit)
 });
-
-let panier = [];
-
+// definition des variables
 let validationPanier = document.getElementById('addToCart')
-
+// création d'une fonction d'écoute qui envoie l'objet "choixProduit" dans l'array panier si les conditions sont remplies
 validationPanier.addEventListener("click",function(ajout){
-    panier.push(choixProduit);
-    console.log(panier);
-})
-
+    if (
+        choixProduit.quantité < 1 ||
+        choixProduit.quantité > 100 ||
+        choixProduit.quantité == undefined ||
+        choixProduit.couleur == undefined ||
+        choixProduit.couleur == "" 
+    ){
+        alert("Veuillez renseigner une couleur et un nombre de 1 à 100")
+    } else {
+    ajoutPanier(choixProduit)
+}})
+// fonction qui envoie le contenu du panier dans le LocalStorage
+function savePanier(panier) {
+    localStorage.setItem("Panier", JSON.stringify(panier))
+}
+// fonction qui récupère le contenu du LocalStorage et qui crée un array en cas de panier null
+function getPanier() {
+    let panier = localStorage.getItem("Panier");
+    if (panier == null) {
+        return [];
+    } else {
+        return JSON.parse(panier)
+    }
+}
+// définition de la fonction qui ajoute un produit dans le panier
+function ajoutPanier(produit) {
+    // on récupère le panier du storage pour savoir si il est vide
+    let panier = getPanier();
+    // on compare les id et couleurs du produit ajouté avec le panier
+    let foundProductId = panier.find(p => p._id == produit._id);
+    let foundProductColor = panier.find(c => c.couleur == produit.couleur);
+    // si le même est déja présent, on auguemente juste la quantité 
+    if ((foundProductId != undefined) && (foundProductColor != undefined)) {
+        foundProductId.quantité = (foundProductId.quantité + produit.quantité);
+    // sinon on l'ajoute au panier
+    } else {
+        panier.push(produit);
+    }
+    // on renvoi le tout dans le localStorage
+    savePanier(panier);
+}
 console.log("tout va bien");
-ok
+
     
