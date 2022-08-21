@@ -42,7 +42,7 @@ choixCouleur.addEventListener("change", function(choix) {
     choixProduit.couleur = couleurProduit;
     console.log(choixProduit)
 });
-// création d'une fonction d'écoute pour récupérer la valueur de la quantité choisie(on utilise ici "parseInt" pour changer la valeur string de quantité en number)
+// création d'une fonction d'écoute pour récupérer la valeur de la quantité choisie(on utilise ici "parseInt" pour changer la valeur string de quantité en number)
 choixQuantité.addEventListener('change', function(choix) {
     quantitéProduit = parseInt(choix.target.value);
     choixProduit.quantité = quantitéProduit;
