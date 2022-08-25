@@ -101,6 +101,8 @@ function ajoutPanier(produit) {
     }
     // on renvoi le tout dans le localStorage
     sauverPanier(panier);
+    alert('Article ajouté !');
+
 }
 console.log("tout va bien");
 

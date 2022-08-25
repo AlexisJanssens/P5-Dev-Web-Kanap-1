@@ -7,6 +7,7 @@ function sauverPanier(panier) {
 }
 
 
+
 // On définit notre variable panier
 let panier = getPanier()
 
@@ -49,6 +50,8 @@ function récupValeurs (Canapés) {
     affichagePanier(panier)
     // et celle pour modifier les quantités
     modifQuantité()
+    supprimerArticle()
+    calculPrix()
 };
 
 
@@ -56,10 +59,10 @@ function récupValeurs (Canapés) {
 function affichagePanier(panier){
     // on définit la zone pour l'affichage
     let zoneHTML = document.getElementById("cart__items");
-    // on créé la boucle qui va modifier l'HTML
+    // on créé la boucle qui va modifier l'HTML ( on rajoute également des data-id et data-color pour la balise .deleteItem)
     for (let produits of panier) {
         zoneHTML.innerHTML += `
-        <article class="cart__item" data-id="${produits._id}" data-color="${produits.couleur}">
+        <article class="cart__item" data-id="${produits._id}" data-color="${produits.couleur}" data-price="${produits.price}" data-quantité="${produits.quantité}">
         <div class="cart__item__img">
           <img src="${produits.imageUrl}" alt="${produits.altText}">
         </div>
@@ -75,7 +78,7 @@ function affichagePanier(panier){
               <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${produits.quantité}">
             </div>
             <div class="cart__item__content__settings__delete">
-              <p class="deleteItem">Supprimer</p>
+              <p class="deleteItem" data-id="${produits._id}" data-color="${produits.couleur}">Supprimer</p>
             </div>
           </div>
         </div>
@@ -83,11 +86,12 @@ function affichagePanier(panier){
     }
 };
 
-
 // on définit la fonction qui va modifier les quantités
 function modifQuantité() {
     // on indique les zones d'ou on va écouter le changement de quantité
-    const zonePanier = document.querySelectorAll('.cart__item');
+    let zonePanier = document.querySelectorAll('.cart__item');
+    console.log(zonePanier)
+
     // on créé une première boucle pour chaque article présent dans la zone panier
     for (let élémentDuPanier of zonePanier) {
         // on définit notre fonction d'écoute pour le changement de quantité
@@ -101,12 +105,71 @@ function modifQuantité() {
                     // .. on modifie la quantité du canapé du "panier temporaire"
                     kanap.quantité = q.target.value;
                     // indication console pour voir l'objet se modifier
-                    console.log(kanap)
+                    console.log(kanap);
+                    alert('Quantité modifiée !')
                     // on renvoit le panier modifié dans le LocalStorage au format JSON
-                    sauverPanier(panier)
+                    sauverPanier(panier);
+                    location.reload();
                 };
             };
         });
     };
 };
-console.log("tout va bien");
+
+
+// définition de la fonction pour supprimer un élément du panier
+function supprimerArticle () {
+  // on définit la zone sur lequel on va lancer la fonction d'écoute par après
+  let zonePanier = document.querySelectorAll('.cart__item .deleteItem');
+  // on lance une boucle qui jouée pour chaque article de la 'zonePanier'
+  zonePanier.forEach(function(élémentDuPanier) {
+    // on définit une fonction d'écoute qui va se déclencher dès qu'on clique sur 'supprimer'
+    élémentDuPanier.addEventListener('click', function(){
+      // on définit notre variable qui récupère le panier du localStorage
+      let panier = getPanier();
+      // on définit une deuxième boucle qui va jouer 'l' fois (taille du panier) 
+      for (let x = 0, l = panier.length; x < l; x++) {
+        // si les id et couleurs des canapés du panier matchent avec les 'data-set' alors..
+        if ((panier[x]._id === élémentDuPanier.dataset.id) && (panier[x].couleur === élémentDuPanier.dataset.color)){
+          // ...on supprime l'"élémentDuPanier" du "panier"
+          panier.splice(x, 1);
+          alert('Article supprimé !')
+          // et renvoie le tout dans le localStorage
+          console.log(panier.length)
+          sauverPanier(panier);
+          // on recharge la page pour actualiser l'HTML
+          location.reload()
+        }
+      }
+    })
+  }) 
+  // si le panier est vide on modifie le 'h1'
+  if (panier.length == 0){
+    document.querySelector('h1').innerText = "Votre panier est vide";
+  } 
+}
+
+// définition de la fonction pour calculer le prix total et de la quantité d'articles du panier 
+function calculPrix(){
+  // définition des 2 variables
+  let totalPrix = 0;
+  let totalArticle = 0;
+  // on définit la zone sur lequel faire la boucle
+  let zonePanier = document.querySelectorAll('.cart__item');
+  // on définit la boucle
+  for (let élémentDuPanier of zonePanier){
+    // on modifie notre variable de prix en fonction du nbre d'articles et des prix respectifs
+    totalPrix += (élémentDuPanier.dataset.price * élémentDuPanier.dataset.quantité);
+    // on modifie notre variable de quantité en fonction des nbrs d'articles
+    totalArticle += parseInt(élémentDuPanier.dataset.quantité);
+    // on ajoute notre variable dans l'affichage des prix
+    document.getElementById('totalPrice').innerText = totalPrix;
+    // on ajoute notre variable dans l'affichage de la quantité
+    document.getElementById('totalQuantity').innerText = totalArticle;
+
+  }
+}
+
+// console.log("tout va bien");
+// QUESTIONS ? 
+//
