@@ -169,7 +169,89 @@ function calculPrix(){
 
   }
 }
+// RegEx pour le champ "Prénom"
+// on indique l'endroit du HTML où l'on va effectuer la fonction d'écoute
+document.getElementById('firstName').addEventListener('input', function(event) {
+  // on définit une RegEx qui n'accepte que les caratères ASCII
+  if (/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u.test(event.target.value)){
+    // si la RegEx passe alors pas de message d'erreur et le bouton de validation est activé
+    document.getElementById('firstNameErrorMsg')
+    .innerText = '';
+    désactiverBouton(false)
+  // sinon on affiche le message d'erreur et on désactive le bouton de validation
+  } else {
+    document.getElementById('firstNameErrorMsg')
+    .innerText = 'Vous avez utilisé des caractères spéciaux.';
+    désactiverBouton(true)
+  }
+})
 
+// RegEx pour le champ "Nom"
+document.getElementById('lastName').addEventListener('input', function(event) {
+  if (/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u.test(event.target.value)){
+    document.getElementById('lastNameErrorMsg')
+    .innerText = '';
+    désactiverBouton(false)
+  } else {
+    document.getElementById('lastNameErrorMsg')
+    .innerText = 'Vous avez utilisé des caractères spéciaux.';
+    désactiverBouton(true)
+  }
+})
+
+// RegEx pour le champ "Adresse"
+document.getElementById('address').addEventListener('input', function(event) {
+  if (/^[A-Za-z0-9/'\.\-\s\,]+$/.test(event.target.value)){
+    document.getElementById('addressErrorMsg')
+    .innerText = '';
+    désactiverBouton(false)
+  } else {
+    document.getElementById('addressErrorMsg')
+    .innerText = 'Vous avez utilisé des caractères spéciaux.';
+    désactiverBouton(true)
+  }
+})
+
+// RegEx pour le champ "Ville"
+document.getElementById('city').addEventListener('input', function(event) {
+  if (/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u.test(event.target.value)){
+    document.getElementById('cityErrorMsg')
+    .innerText = ''
+    désactiverBouton(false)
+  } else {
+    document.getElementById('cityErrorMsg')
+    .innerText = 'Vous avez utilisé des caractères spéciaux.';
+    désactiverBouton(true)
+  }
+})
+
+// RegEx pour le champ "Email"
+document.getElementById('email').addEventListener('change', function(event) {
+  if (/[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/.test(event.target.value)){
+    document.getElementById('emailErrorMsg')
+    .innerText = '';
+    désactiverBouton(false)
+  } else {
+    document.getElementById('emailErrorMsg')
+    .innerText = "Veuillez renseigner une adresse E-mail correcte s'il vous plait.";
+    désactiverBouton(true)
+  }
+})
+
+// définition de la fonction pour désactiver et griser le bouton
+function désactiverBouton (désactiver) {
+  if (désactiver) {
+    document.getElementById('order')
+    .setAttribute('disabled', true);
+    document.getElementById('order')
+    .style.opacity = "0.5"
+  } else {
+    document.getElementById('order')
+    .removeAttribute('disabled');
+    document.getElementById('order')
+    .style.opacity = "1"
+  }
+}
 // console.log("tout va bien");
 // QUESTIONS ? 
 //
