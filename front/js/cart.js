@@ -6,6 +6,8 @@ function sauverPanier(panier) {
     localStorage.setItem("Panier", JSON.stringify(panier))
 }
 
+désactiverBouton(true)
+
 
 
 // On définit notre variable panier
@@ -252,6 +254,74 @@ function désactiverBouton (désactiver) {
     .style.opacity = "1"
   }
 }
+
+console.log(panier)
+
+// on définit une constante panierId qui sera l'array avec les id pour la commande
+let panierId = [];
+
+// on définit la fonction qui va récupérer les Id des produits pour les "push" dans notre array panierId
+function récupIdPanier() {
+  let panier = JSON.parse(localStorage.getItem("Panier"));
+  if (panier && panier.length > 0) {
+    for (let article of panier) {
+      panierId.push(article._id);
+    }
+  } 
+}
+
+// on créer un évenement sur le clique du bouton "commander"
+document.getElementById('order').addEventListener('click', function(event) {
+  // on empèche le comportement par défaut du bouton
+  event.preventDefault();
+  // on récupère les Id
+  récupIdPanier();
+  // on récupère les infos client
+  let prénom = document.getElementById('firstName');
+  let nom = document.getElementById('lastName');
+  let adresse = document.getElementById('address');
+  let ville = document.getElementById('city');
+  let email = document.getElementById('email');
+  // on définit la commande qui sera envoyé dans la requête POST
+  let commande = {
+    contact:{
+      firstName: prénom.value,
+      lastName: nom.value,
+      address: adresse.value,
+      city: ville.value,
+      email: email.value,
+    },
+    products: panierId,
+  } ;
+  // on créer la requête POST via fetch
+  fetch("http://localhost:3000/api/products/order", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    },
+    // on envoie notre commande au format JSON
+    body: JSON.stringify(commande)
+  })
+    // on récupère la réponse
+    .then(function(res) {
+      if (res.ok) {
+        return res.json();
+      }
+    })
+    // on modifie la page pour que ce soit la page de confirmation avec le orderId en url
+    .then(function(data) {
+      window.location.href = `/front/html/confirmation.html?commande=${data.orderId}`
+    })
+    // on intercepte la requête en cas d'erreur
+    .catch(function(err) {
+    console.log(err)
+    })
+});
+
+
+
+
 // console.log("tout va bien");
 // QUESTIONS ? 
 //
