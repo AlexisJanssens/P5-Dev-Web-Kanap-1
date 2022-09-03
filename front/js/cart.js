@@ -4,15 +4,15 @@ function getPanier() {
 };
 function sauverPanier(panier) {
     localStorage.setItem("Panier", JSON.stringify(panier))
-}
+};
+
 
 désactiverBouton(true)
 
 
-
 // On définit notre variable panier
 let panier = getPanier()
-
+console.log(panier)
 
 // On envoie une requte "get" pour récupérer la liste complete des Canapés en vente
 fetch("http://localhost:3000/api/products/")
@@ -49,7 +49,7 @@ function récupValeurs (Canapés) {
         }
     }
     // on appelle la fonction pour afficher le panier
-    affichagePanier(panier)
+    affichagePanier(panier);
     // et celle pour modifier les quantités
     modifQuantité()
     supprimerArticle()
@@ -318,6 +318,7 @@ document.getElementById('order').addEventListener('click', function(event) {
     console.log(err)
     })
 });
+
 
 
 

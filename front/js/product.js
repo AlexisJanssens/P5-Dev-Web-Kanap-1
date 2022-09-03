@@ -94,12 +94,19 @@ function ajoutPanier(produit) {
     // si le même produit est déja présent, on auguemente juste la quantité 
     if ((produitTrouvéParId != undefined) && (produitTrouvéParCouleur != undefined)) {
         alert("Attention ! Vous avez déja au moins un exemplaire de ce produit dans le panier")
-        produitTrouvéParId.quantité = (produitTrouvéParId.quantité + produit.quantité);
+        produitTrouvéParCouleur.quantité = (parseInt(produitTrouvéParCouleur.quantité) + produit.quantité);
     // sinon on l'ajoute au panier
     } else {
         panier.push(produit);
     }
     // on renvoi le tout dans le localStorage
+    panier.sort(function compare(a, b) {
+        if (a._id  > b._id)
+            return -1;
+        if (a._id > b._id)
+            return 1;
+        return 0;
+    });
     sauverPanier(panier);
     alert('Article ajouté !');
 
