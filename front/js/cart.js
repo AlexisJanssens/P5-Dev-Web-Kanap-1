@@ -6,7 +6,7 @@ function sauverPanier(panier) {
     localStorage.setItem("Panier", JSON.stringify(panier))
 };
 
-
+// On grise et désactive le bouton de validation lors du chargement de la page
 désactiverBouton(true)
 
 
@@ -14,7 +14,7 @@ désactiverBouton(true)
 let panier = getPanier()
 console.log(panier)
 
-// On envoie une requte "get" pour récupérer la liste complete des Canapés en vente
+// On envoie une requête "get" pour récupérer la liste complete des Canapés en vente
 fetch("http://localhost:3000/api/products/")
 .then(function(res) {
     if (res.ok) {
@@ -35,6 +35,7 @@ fetch("http://localhost:3000/api/products/")
 
 // definition de la fonction qui récupère les valeurs manquante
 function récupValeurs (Canapés) {
+    // on joue autant de fois la boucle qu'il y a de produits dans le panier
     for (let produits of panier){
         // on joue la boucle "l" fois ( l = nombres de canapés différents sur le site), à chaque boucle l'indice "x" incrémente de 1
         for (let x = 0, l = Canapés.length; x < l; x++){
@@ -50,7 +51,7 @@ function récupValeurs (Canapés) {
     }
     // on appelle la fonction pour afficher le panier
     affichagePanier(panier);
-    // et celle pour modifier les quantités
+    // et celle pour modifier, supprimer les quantités et afficher le prix total du panier
     modifQuantité()
     supprimerArticle()
     calculPrix()
@@ -93,7 +94,6 @@ function modifQuantité() {
     // on indique les zones d'ou on va écouter le changement de quantité
     let zonePanier = document.querySelectorAll('.cart__item');
     console.log(zonePanier)
-
     // on créé une première boucle pour chaque article présent dans la zone panier
     for (let élémentDuPanier of zonePanier) {
         // on définit notre fonction d'écoute pour le changement de quantité
@@ -123,8 +123,9 @@ function modifQuantité() {
 function supprimerArticle () {
   // on définit la zone sur lequel on va lancer la fonction d'écoute par après
   let zonePanier = document.querySelectorAll('.cart__item .deleteItem');
-  // on lance une boucle qui jouée pour chaque article de la 'zonePanier'
-  zonePanier.forEach(function(élémentDuPanier) {
+  console.log(zonePanier)
+  // on lance une boucle qui est jouée pour chaque article de la 'zonePanier'
+  for (let élémentDuPanier of zonePanier) {
     // on définit une fonction d'écoute qui va se déclencher dès qu'on clique sur 'supprimer'
     élémentDuPanier.addEventListener('click', function(){
       // on définit notre variable qui récupère le panier du localStorage
@@ -144,7 +145,7 @@ function supprimerArticle () {
         }
       }
     })
-  }) 
+  }
   // si le panier est vide on modifie le 'h1'
   if (panier.length == 0){
     document.querySelector('h1').innerText = "Votre panier est vide";

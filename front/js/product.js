@@ -51,7 +51,7 @@ choixQuantité.addEventListener('change', function(choix) {
 // definition des variables
 let validationPanier = document.getElementById('addToCart')
 // création d'une fonction d'écoute qui envoie l'objet "choixProduit" dans l'array panier si les conditions sont remplies
-validationPanier.addEventListener("click",function(){
+validationPanier.addEventListener("click",function() {
     if (
         choixProduit.quantité < 1 ||
         choixProduit.quantité > 100 ||
@@ -99,7 +99,7 @@ function ajoutPanier(produit) {
     } else {
         panier.push(produit);
     }
-    // on renvoi le tout dans le localStorage
+    // on renvoi le tout dans le localStorage en triant le panier
     panier.sort(function compare(a, b) {
         if (a._id  > b._id)
             return -1;
