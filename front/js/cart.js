@@ -15,22 +15,24 @@ let panier = getPanier()
 console.log(panier)
 
 // On envoie une requête "get" pour récupérer la liste complete des Canapés en vente
-fetch("http://localhost:3000/api/products/")
-.then(function(res) {
-    if (res.ok) {
-      return res.json();
-    }
-  })
-  .then(function(Canapés) {
-    console.table(Canapés);
-    // on appelle la fonction qui va récupérer les valeurs manquante et les afficher
-    récupValeurs(Canapés);
-  })
-  // on intercepte en cas d'erreur
-  .catch(function(err) {
-    console.log("Une erreure est survenue..");  
-    document.querySelector('h1').innerText = "Votre panier est vide"
-  });
+function getValuesFetch() {
+  fetch("http://localhost:3000/api/products/")
+    .then(function(res) {
+      if (res.ok) {
+        return res.json();
+      }
+    })
+    .then(function(Canapés) {
+      console.table(Canapés);
+      // on appelle la fonction qui va récupérer les valeurs manquante et les afficher
+      récupValeurs(Canapés);
+    })
+    // on intercepte en cas d'erreur
+    .catch(function(err) {
+      console.log("Une erreure est survenue..");  
+      document.querySelector('h1').innerText = "Votre panier est vide"
+    });
+  }
 
 
 // definition de la fonction qui récupère les valeurs manquante
@@ -102,8 +104,12 @@ function modifQuantité() {
             let panier = JSON.parse(localStorage.getItem("Panier"));
             // on créé un deuxième boucle dans la boucle pour retrouver le canapé correspondant à la modification
             for ( let kanap of panier ) {
-                // si les id et couleurs sont identiques alors..
-                if ((kanap._id === élémentDuPanier.dataset.id) && (kanap.couleur === élémentDuPanier.dataset.color)){
+                // si les id et couleurs sont identiques alors et que la quantité est correcte
+                if (
+                  (kanap._id === élémentDuPanier.dataset.id) && 
+                  (kanap.couleur === élémentDuPanier.dataset.color) && 
+                  (q.target.value > 0) && (q.target.value < 100)
+                  ){
                     // .. on modifie la quantité du canapé du "panier temporaire"
                     kanap.quantité = q.target.value;
                     // indication console pour voir l'objet se modifier
@@ -112,6 +118,8 @@ function modifQuantité() {
                     // on renvoit le panier modifié dans le LocalStorage au format JSON
                     sauverPanier(panier);
                     location.reload();
+                } else {
+                  alert("Veuillez renseigner une quantité allant de 1 à 100")
                 };
             };
         });
@@ -172,6 +180,8 @@ function calculPrix(){
 
   }
 }
+//on appelle la fontction fetch
+getValuesFetch()
 // RegEx pour le champ "Prénom"
 // on indique l'endroit du HTML où l'on va effectuer la fonction d'écoute
 document.getElementById('firstName').addEventListener('input', function(event) {
@@ -247,7 +257,7 @@ function désactiverBouton (désactiver) {
     document.getElementById('order')
     .setAttribute('disabled', true);
     document.getElementById('order')
-    .style.opacity = "0.5"
+    .style.opacity = ".5"
   } else {
     document.getElementById('order')
     .removeAttribute('disabled');
@@ -270,31 +280,7 @@ function récupIdPanier() {
     }
   } 
 }
-
-// on créer un évenement sur le clique du bouton "commander"
-document.getElementById('order').addEventListener('click', function(event) {
-  // on empèche le comportement par défaut du bouton
-  event.preventDefault();
-  // on récupère les Id
-  récupIdPanier();
-  // on récupère les infos client
-  let prénom = document.getElementById('firstName');
-  let nom = document.getElementById('lastName');
-  let adresse = document.getElementById('address');
-  let ville = document.getElementById('city');
-  let email = document.getElementById('email');
-  // on définit la commande qui sera envoyé dans la requête POST
-  let commande = {
-    contact:{
-      firstName: prénom.value,
-      lastName: nom.value,
-      address: adresse.value,
-      city: ville.value,
-      email: email.value,
-    },
-    products: panierId,
-  } ;
-  // on créer la requête POST via fetch
+function PostFetch (commande) {
   fetch("http://localhost:3000/api/products/order", {
     method: "POST",
     headers: {
@@ -318,6 +304,32 @@ document.getElementById('order').addEventListener('click', function(event) {
     .catch(function(err) {
     console.log(err)
     })
+
+}
+// on créer un évenement sur le clique du bouton "commander"
+document.getElementById('order').addEventListener('click', function(event) {
+  // on empèche le comportement par défaut du bouton
+  event.preventDefault();
+  // on récupère les Id
+  récupIdPanier();
+  // on récupère les infos client
+  let prénom = document.getElementById('firstName');
+  let nom = document.getElementById('lastName');
+  let adresse = document.getElementById('address');
+  let ville = document.getElementById('city');
+  let email = document.getElementById('email');
+  // on définit la commande qui sera envoyé dans la requête POST
+  let commande = {
+    contact:{
+      firstName: prénom.value,
+      lastName: nom.value,
+      address: adresse.value,
+      city: ville.value,
+      email: email.value,
+    },
+    products: panierId,
+  } ;
+  PostFetch(commande)
 });
 
 

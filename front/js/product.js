@@ -3,19 +3,21 @@ const url = new URL(document.location.href);
 // récupération de la partie "id" de l'url 
 const idProduct = url.searchParams.get("id");
 // requete de type "get" pour demander à l'API un produit en particulier ( correspondant à l'id présent dans l'url de la page) 
-fetch("http://localhost:3000/api/products/" + idProduct)
-// récuperation de la promise au format JSON 
-    .then(function(res){
-        if (res.ok) {
-            return res.json();
-        }
-    })
-// affichage du JSON dans la console 
-    .then(function(caractéristiques){
-        console.log(caractéristiques);
-// appelle de la fonction pour afficher les caractéristiques du produit dans l'HTML 
-        affichageCaractéristiques(caractéristiques)
-    })
+function getProductDetails (){
+    fetch("http://localhost:3000/api/products/" + idProduct)
+    // récuperation de la promise au format JSON 
+        .then(function(res){
+            if (res.ok) {
+                return res.json();
+            }
+        })
+    // affichage du JSON dans la console 
+        .then(function(caractéristiques){
+            console.log(caractéristiques);
+    // appelle de la fonction pour afficher les caractéristiques du produit dans l'HTML 
+            affichageCaractéristiques(caractéristiques)
+        })
+    }
 // déclaration de la fonction pour afficher les caractéristiques du produit dans l'HTML
 function affichageCaractéristiques(value) {
     document.querySelector('article div.item__img').innerHTML = `<img src="${value.imageUrl}" alt="${value.altTxt}">`;
@@ -27,6 +29,8 @@ function affichageCaractéristiques(value) {
         document.getElementById('colors').innerHTML += 
         `<option value="${couleur}">${couleur}</option>`;
 }};
+// appelle de la fonction fetch
+getProductDetails();
 // création de l'objet choixProduit 
 const choixProduit = {};
 // ajout de la clef "_id" à l'objet "choixProduit" 
@@ -92,12 +96,17 @@ function ajoutPanier(produit) {
     };
     let produitTrouvéParCouleur = panier.find(verifCouleur);
     // si le même produit est déja présent, on auguemente juste la quantité 
-    if ((produitTrouvéParId != undefined) && (produitTrouvéParCouleur != undefined)) {
+    if ((produitTrouvéParId != undefined) && (produitTrouvéParCouleur != undefined) && ((parseInt(produitTrouvéParCouleur.quantité) + produit.quantité)) > 101) {
+        alert("Attention ! Le total ne peut pas être supérieur à 100")
+
+    } else if ((produitTrouvéParId != undefined) && (produitTrouvéParCouleur != undefined)) {
         alert("Attention ! Vous avez déja au moins un exemplaire de ce produit dans le panier")
         produitTrouvéParCouleur.quantité = (parseInt(produitTrouvéParCouleur.quantité) + produit.quantité);
-    // sinon on l'ajoute au panier
+        alert("Article ajouté !")
+
     } else {
         panier.push(produit);
+        alert("Article ajouté !")
     }
     // on renvoi le tout dans le localStorage en triant le panier
     panier.sort(function compare(a, b) {
@@ -108,8 +117,6 @@ function ajoutPanier(produit) {
         return 0;
     });
     sauverPanier(panier);
-    alert('Article ajouté !');
-
 }
 console.log("tout va bien");
 
