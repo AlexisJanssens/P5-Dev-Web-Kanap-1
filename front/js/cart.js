@@ -1,20 +1,15 @@
-// On définit nos fonctions pour récupérer et renvoyer le panier dans le localStorage
+// get basket from localStorage
 function getPanier() {
     return JSON.parse(localStorage.getItem("Panier"))
 };
+// save basket to localStorage
 function sauverPanier(panier) {
     localStorage.setItem("Panier", JSON.stringify(panier))
 };
-
-// On grise et désactive le bouton de validation lors du chargement de la page
-désactiverBouton(true)
-
-
-// On définit notre variable panier
+// Variables
 let panier = getPanier()
-console.log(panier)
-
-// On envoie une requête "get" pour récupérer la liste complete des Canapés en vente
+let panierId = [];
+// get values from API with fetch
 function getValuesFetch() {
   fetch("http://localhost:3000/api/products/")
     .then(function(res) {
@@ -24,24 +19,17 @@ function getValuesFetch() {
     })
     .then(function(Canapés) {
       console.table(Canapés);
-      // on appelle la fonction qui va récupérer les valeurs manquante et les afficher
       récupValeurs(Canapés);
     })
-    // on intercepte en cas d'erreur
     .catch(function(err) {
-      console.log("Une erreure est survenue..");  
+      console.log("Une erreure est survenue.." + err);  
       document.querySelector('h1').innerText = "Votre panier est vide"
     });
   }
-
-
-// definition de la fonction qui récupère les valeurs manquante
+// get missing values
 function récupValeurs (Canapés) {
-    // on joue autant de fois la boucle qu'il y a de produits dans le panier
     for (let produits of panier){
-        // on joue la boucle "l" fois ( l = nombres de canapés différents sur le site), à chaque boucle l'indice "x" incrémente de 1
         for (let x = 0, l = Canapés.length; x < l; x++){
-            // si les id matchent, on récupère l'indice et on applique les valeurs manquantent
             if (produits._id === Canapés[x]._id){
                 produits.name = Canapés[x].name;
                 produits.price = Canapés[x].price;
@@ -51,20 +39,14 @@ function récupValeurs (Canapés) {
             }
         }
     }
-    // on appelle la fonction pour afficher le panier
     affichagePanier(panier);
-    // et celle pour modifier, supprimer les quantités et afficher le prix total du panier
     modifQuantité()
     supprimerArticle()
     calculPrix()
 };
-
-
-// fonction d'affichage du panier
+// show basket on the "cart" page
 function affichagePanier(panier){
-    // on définit la zone pour l'affichage
     let zoneHTML = document.getElementById("cart__items");
-    // on créé la boucle qui va modifier l'HTML ( on rajoute également des data-id et data-color pour la balise .deleteItem)
     for (let produits of panier) {
         zoneHTML.innerHTML += `
         <article class="cart__item" data-id="${produits._id}" data-color="${produits.couleur}" data-price="${produits.price}" data-quantité="${produits.quantité}">
@@ -90,116 +72,86 @@ function affichagePanier(panier){
       </article>`
     }
 };
-
-// on définit la fonction qui va modifier les quantités
+// change the quantity of a product from basket
 function modifQuantité() {
-    // on indique les zones d'ou on va écouter le changement de quantité
     let zonePanier = document.querySelectorAll('.cart__item');
     console.log(zonePanier)
-    // on créé une première boucle pour chaque article présent dans la zone panier
     for (let élémentDuPanier of zonePanier) {
-        // on définit notre fonction d'écoute pour le changement de quantité
         élémentDuPanier.addEventListener("change",function(q){
-            // on récupère le panier sous format JS qui devient le "panier temporaire"
             let panier = JSON.parse(localStorage.getItem("Panier"));
-            // on créé un deuxième boucle dans la boucle pour retrouver le canapé correspondant à la modification
+            console.log(panier)
             for ( let kanap of panier ) {
-                // si les id et couleurs sont identiques alors et que la quantité est correcte
+                // validate conditions
                 if (
                   (kanap._id === élémentDuPanier.dataset.id) && 
                   (kanap.couleur === élémentDuPanier.dataset.color) && 
-                  (q.target.value > 0) && (q.target.value < 100)
+                  (q.target.value > 0) && 
+                  (q.target.value < 100)
                   ){
-                    // .. on modifie la quantité du canapé du "panier temporaire"
                     kanap.quantité = q.target.value;
-                    // indication console pour voir l'objet se modifier
-                    console.log(kanap);
                     alert('Quantité modifiée !')
-                    // on renvoit le panier modifié dans le LocalStorage au format JSON
                     sauverPanier(panier);
-                    location.reload();
-                } else {
-                  alert("Veuillez renseigner une quantité allant de 1 à 100")
-                };
-            };
-        });
-    };
-};
-
-
-// définition de la fonction pour supprimer un élément du panier
+                } else if (
+                  (kanap._id === élémentDuPanier.dataset.id) && 
+                  (kanap.couleur === élémentDuPanier.dataset.color)
+                  ){
+                    alert("Veuillez renseigner une quantité allant de 1 à 100")
+                }
+            }
+        })
+      }
+  };
+        
+// delete a product from basket
 function supprimerArticle () {
-  // on définit la zone sur lequel on va lancer la fonction d'écoute par après
   let zonePanier = document.querySelectorAll('.cart__item .deleteItem');
-  console.log(zonePanier)
-  // on lance une boucle qui est jouée pour chaque article de la 'zonePanier'
   for (let élémentDuPanier of zonePanier) {
-    // on définit une fonction d'écoute qui va se déclencher dès qu'on clique sur 'supprimer'
     élémentDuPanier.addEventListener('click', function(){
-      // on définit notre variable qui récupère le panier du localStorage
       let panier = getPanier();
-      // on définit une deuxième boucle qui va jouer 'l' fois (taille du panier) 
       for (let x = 0, l = panier.length; x < l; x++) {
-        // si les id et couleurs des canapés du panier matchent avec les 'data-set' alors..
         if ((panier[x]._id === élémentDuPanier.dataset.id) && (panier[x].couleur === élémentDuPanier.dataset.color)){
-          // ...on supprime l'"élémentDuPanier" du "panier"
           panier.splice(x, 1);
           alert('Article supprimé !')
-          // et renvoie le tout dans le localStorage
-          console.log(panier.length)
           sauverPanier(panier);
-          // on recharge la page pour actualiser l'HTML
           location.reload()
         }
       }
     })
   }
-  // si le panier est vide on modifie le 'h1'
+  // special case with empty basket
   if (panier.length == 0){
     document.querySelector('h1').innerText = "Votre panier est vide";
   } 
 }
-
-// définition de la fonction pour calculer le prix total et de la quantité d'articles du panier 
+// total price calculation 
 function calculPrix(){
-  // définition des 2 variables
   let totalPrix = 0;
   let totalArticle = 0;
-  // on définit la zone sur lequel faire la boucle
   let zonePanier = document.querySelectorAll('.cart__item');
-  // on définit la boucle
   for (let élémentDuPanier of zonePanier){
-    // on modifie notre variable de prix en fonction du nbre d'articles et des prix respectifs
     totalPrix += (élémentDuPanier.dataset.price * élémentDuPanier.dataset.quantité);
-    // on modifie notre variable de quantité en fonction des nbrs d'articles
     totalArticle += parseInt(élémentDuPanier.dataset.quantité);
-    // on ajoute notre variable dans l'affichage des prix
     document.getElementById('totalPrice').innerText = totalPrix;
-    // on ajoute notre variable dans l'affichage de la quantité
     document.getElementById('totalQuantity').innerText = totalArticle;
 
   }
 }
-//on appelle la fontction fetch
+// call
 getValuesFetch()
-// RegEx pour le champ "Prénom"
-// on indique l'endroit du HTML où l'on va effectuer la fonction d'écoute
+désactiverBouton(true)
+// RegEx for "Prénom"
 document.getElementById('firstName').addEventListener('input', function(event) {
-  // on définit une RegEx qui n'accepte que les caratères ASCII
   if (/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u.test(event.target.value)){
-    // si la RegEx passe alors pas de message d'erreur et le bouton de validation est activé
     document.getElementById('firstNameErrorMsg')
     .innerText = '';
     désactiverBouton(false)
-  // sinon on affiche le message d'erreur et on désactive le bouton de validation
   } else {
     document.getElementById('firstNameErrorMsg')
     .innerText = 'Vous avez utilisé des caractères spéciaux.';
     désactiverBouton(true)
   }
 })
-
-// RegEx pour le champ "Nom"
+// RegEx for "Nom"
 document.getElementById('lastName').addEventListener('input', function(event) {
   if (/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u.test(event.target.value)){
     document.getElementById('lastNameErrorMsg')
@@ -211,8 +163,7 @@ document.getElementById('lastName').addEventListener('input', function(event) {
     désactiverBouton(true)
   }
 })
-
-// RegEx pour le champ "Adresse"
+// RegEx for "Adresse"
 document.getElementById('address').addEventListener('input', function(event) {
   if (/^[A-Za-z0-9/'\.\-\s\,]+$/.test(event.target.value)){
     document.getElementById('addressErrorMsg')
@@ -224,8 +175,7 @@ document.getElementById('address').addEventListener('input', function(event) {
     désactiverBouton(true)
   }
 })
-
-// RegEx pour le champ "Ville"
+// RegEx for "Ville"
 document.getElementById('city').addEventListener('input', function(event) {
   if (/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u.test(event.target.value)){
     document.getElementById('cityErrorMsg')
@@ -237,8 +187,7 @@ document.getElementById('city').addEventListener('input', function(event) {
     désactiverBouton(true)
   }
 })
-
-// RegEx pour le champ "Email"
+// RegEx for "Email"
 document.getElementById('email').addEventListener('change', function(event) {
   if (/[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/.test(event.target.value)){
     document.getElementById('emailErrorMsg')
@@ -250,8 +199,7 @@ document.getElementById('email').addEventListener('change', function(event) {
     désactiverBouton(true)
   }
 })
-
-// définition de la fonction pour désactiver et griser le bouton
+// desactivate submit button 
 function désactiverBouton (désactiver) {
   if (désactiver) {
     document.getElementById('order')
@@ -265,13 +213,7 @@ function désactiverBouton (désactiver) {
     .style.opacity = "1"
   }
 }
-
-console.log(panier)
-
-// on définit une constante panierId qui sera l'array avec les id pour la commande
-let panierId = [];
-
-// on définit la fonction qui va récupérer les Id des produits pour les "push" dans notre array panierId
+// get the id's of basket products for the post request
 function récupIdPanier() {
   let panier = JSON.parse(localStorage.getItem("Panier"));
   if (panier && panier.length > 0) {
@@ -280,6 +222,7 @@ function récupIdPanier() {
     }
   } 
 }
+// post request to the API for the order
 function PostFetch (commande) {
   fetch("http://localhost:3000/api/products/order", {
     method: "POST",
@@ -287,38 +230,32 @@ function PostFetch (commande) {
       Accept: "application/json",
       "Content-Type": "application/json"
     },
-    // on envoie notre commande au format JSON
     body: JSON.stringify(commande)
   })
-    // on récupère la réponse
     .then(function(res) {
       if (res.ok) {
         return res.json();
       }
     })
-    // on modifie la page pour que ce soit la page de confirmation avec le orderId en url
+    // change current url to "confirmation" one
     .then(function(data) {
       window.location.href = `/front/html/confirmation.html?commande=${data.orderId}`
     })
-    // on intercepte la requête en cas d'erreur
     .catch(function(err) {
     console.log(err)
     })
-
 }
-// on créer un évenement sur le clique du bouton "commander"
+// submit the order when click the button
 document.getElementById('order').addEventListener('click', function(event) {
-  // on empèche le comportement par défaut du bouton
   event.preventDefault();
-  // on récupère les Id
   récupIdPanier();
-  // on récupère les infos client
+  // client variables
   let prénom = document.getElementById('firstName');
   let nom = document.getElementById('lastName');
   let adresse = document.getElementById('address');
   let ville = document.getElementById('city');
   let email = document.getElementById('email');
-  // on définit la commande qui sera envoyé dans la requête POST
+  // order
   let commande = {
     contact:{
       firstName: prénom.value,
@@ -331,11 +268,3 @@ document.getElementById('order').addEventListener('click', function(event) {
   } ;
   PostFetch(commande)
 });
-
-
-
-
-
-// console.log("tout va bien");
-// QUESTIONS ? 
-//

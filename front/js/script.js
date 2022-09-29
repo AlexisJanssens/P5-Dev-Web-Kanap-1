@@ -1,28 +1,23 @@
-// requête de type "get" pour récupérer l'ensemble des produits sous forme de tableau 
+// get product list from the API 
 function getProducts() {
   fetch("http://localhost:3000/api/products/")
-  // récupération de la promise au format JSON
     .then(function(res) {
       if (res.ok) {
         return res.json();
       }
     })
-  // récupération dans la console du JSON dans la console sous forme de tableau
     .then(function(Canapés) {
       console.table(Canapés);
-  // appelle de la fonction pour l'affichage des produits sur la page d'accueil
       affichageCanapés(Canapés);
     })
-  // affichage d'une erreure en cas de problèmes
     .catch(function(err) {
-      console.log("Une erreure est survenue..")
+      console.log("Une erreure est survenue.. :" + err)
     });
   }
 
-// déclaration de la fonction pour afficher les produits sur la page d'accueil
+// show products on the homePage
 function affichageCanapés(Canapés) {
     let créationCartes = document.getElementById('items');
-// création d'une boucle qui créé l'HTML pour chaque "kanap" du tableau "Canapés"
     for (let kanap of Canapés) {
         créationCartes.innerHTML += `
           <a href="./product.html?id=${kanap._id}">
@@ -34,6 +29,6 @@ function affichageCanapés(Canapés) {
           </a>`;
     }
 }
-
+// call
 getProducts()    
 
